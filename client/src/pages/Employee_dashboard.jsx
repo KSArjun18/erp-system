@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import { FaCalendarCheck, FaUserClock } from 'react-icons/fa';
 // import TopBar from './TopBar';
 import "../styles/EmployeeDashboard.module.css";
+import { admin_dashboard, attendance, timesheet } from '../utils/APIRoutes';
+
 
 const EmployeeDashboard = () => {
   const [token, setToken] = useState(JSON.parse(localStorage.getItem("auth")) || "");
@@ -16,7 +18,6 @@ const EmployeeDashboard = () => {
   const navigate = useNavigate();
   const [data, setData] = useState({});
 
-  
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
@@ -30,37 +31,17 @@ const EmployeeDashboard = () => {
         console.error(err);
         setError('Failed to fetch employee data');
       }
-      
     };
     
-    const fetchData = async () => {
-      await Promise.all([fetchEmployeeData(), fetchTimesheets(), fetchAttendanceRecords()]);
-      setLoading(false);
-      let axiosConfig = {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+    const fetchTimesheets = async () => { // Define fetchTimesheets function
+      try {
+        // const response = await axios.get(`${timesheet}`, {
+        //   headers: {
+        //     Authorization: `Bearer ${localStorage.getItem('token')}`,
+        //   },
+        // });
         
-      };
-  
-      setLoading(true);
-      try {
-        const response = await axios.get("http://localhost:3000/api/v1/admin_dashboard", axiosConfig);
-        setData({ msg: response.data.msg });
-        setLoading(false);
-      } catch (error) {
-        toast.error(error.message);
-        setLoading(false);
-      }
-    };
-    const fetchTimesheets = async () => {
-      try {
-        const response = await axios.get('/api/v1/timesheet', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        setTimesheets(response.data.timesheetRecords || []);
+        // setTimesheets(response.data.timesheetRecords || []);
       } catch (err) {
         console.error(err);
         setError('Failed to fetch timesheets');
@@ -69,7 +50,7 @@ const EmployeeDashboard = () => {
 
     const fetchAttendanceRecords = async () => {
       try {
-        const response = await axios.get('/api/v1/attendance', {
+        const response = await axios.get(`${attendance}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -80,20 +61,29 @@ const EmployeeDashboard = () => {
         setError('Failed to fetch attendance records');
       }
     };
-    
-    // const fetchData = async () => {
-    //   await Promise.all([fetchEmployeeData(), fetchTimesheets(), fetchAttendanceRecords()]);
-    //   setLoading(false);
-    // };
+
+    const fetchData = async () => {
+      await Promise.all([fetchEmployeeData(), fetchTimesheets(), fetchAttendanceRecords()]);
+      setLoading(false);
+      let axiosConfig = {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      };
+  
+      setLoading(true);
+      try {
+        const response = await axios.get(`${admin_dashboard}`, axiosConfig);
+        setData({ msg: response.data.msg });
+        setLoading(false);
+      } catch (error) {
+        toast.error(error.message);
+        setLoading(false);
+      }
+    };
 
     fetchData();
   }, []);
-
-  // const handleLogout = () => {
-  //   localStorage.removeItem('token');
-  //   navigate('/login');
-  //   toast.info('Logged out successfully');
-  // };
 
   if (loading) {
     return <div>Loading...</div>;

@@ -8,6 +8,8 @@ import TopBar from './TopBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUsers, faBullhorn, faClock } from '@fortawesome/free-solid-svg-icons';
 import "../styles/Topbar.css";
+import { add_employee, admin_dashboard, delete_employee, update_employee, user } from '../utils/APIRoutes';
+
 
 const Dashboard = () => {
   const [token, setToken] = useState(JSON.parse(localStorage.getItem("auth")) || "");
@@ -31,7 +33,7 @@ const Dashboard = () => {
 
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/api/v1/admin_dashboard", axiosConfig);
+      const response = await axios.get(`${admin_dashboard}`, axiosConfig);
       setData({ msg: response.data.msg });
       setLoading(false);
     } catch (error) {
@@ -49,7 +51,7 @@ const Dashboard = () => {
 
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/api/v1/users", axiosConfig);
+      const response = await axios.get(`${user}`, axiosConfig);
       setUsers(response.data.users);
       setFilteredUsers(response.data.users);
       setLoading(false);
@@ -70,7 +72,7 @@ const Dashboard = () => {
     }
 
     try {
-      await axios.post("http://localhost:3000/api/v1/add_employee", newEmployee, {
+      await axios.post(`${add_employee}`, newEmployee, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       toast.success("Employee added successfully");
@@ -87,7 +89,7 @@ const Dashboard = () => {
 
   const handleUpdateUser = async () => {
     try {
-      await axios.put(`http://localhost:3000/api/v1/update_employee/${editUser._id}`, editUser, {
+      await axios.put(`${update_employee}/${editUser._id}`, editUser, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       toast.success("User updated successfully");
@@ -100,7 +102,7 @@ const Dashboard = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
-      await axios.delete(`http://localhost:3000/api/v1/delete_employee/${userId}`, {
+      await axios.delete(`${delete_employee}/${userId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       toast.success("User deleted successfully");

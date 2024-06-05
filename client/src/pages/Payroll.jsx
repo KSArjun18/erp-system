@@ -4,6 +4,9 @@ import TopBar from './TopBar';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { TailSpin } from 'react-loader-spinner';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, IconButton } from '@mui/material';
+import { AccountCircle, CalendarToday, MonetizationOn, Receipt } from '@mui/icons-material';
+// import { payrolls } from '../utils/APIRoutes'; // Comment out the actual API route
 
 const Payroll = () => {
   const [payrollRecords, setPayrollRecords] = useState([]);
@@ -14,7 +17,35 @@ const Payroll = () => {
   useEffect(() => {
     const fetchPayrollRecords = async () => {
       try {
-        const response = await axios.get('/api/v1/payrolls');
+        // Dummy data for testing
+        const response = {
+          data: {
+            payrolls: [
+              {
+                _id: '1',
+                userId: { name: 'John Doe' },
+                month: 'January 2023',
+                salary: '$4000',
+                status: 'Paid',
+              },
+              {
+                _id: '2',
+                userId: { name: 'Jane Smith' },
+                month: 'January 2023',
+                salary: '$4500',
+                status: 'Pending',
+              },
+              {
+                _id: '3',
+                userId: { name: 'Alice Johnson' },
+                month: 'February 2023',
+                salary: '$4200',
+                status: 'Paid',
+              },
+            ],
+          },
+        };
+        // const response = await axios.get(`${payrolls}`); // Comment out the actual API call
         setPayrollRecords(response.data.payrolls);
       } catch (error) {
         setError('Error fetching payroll records');
@@ -28,20 +59,15 @@ const Payroll = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("auth");
-    navigate("/login");
-    toast.info("Logged out successfully");
+    localStorage.removeItem('auth');
+    navigate('/login');
+    toast.info('Logged out successfully');
   };
 
   if (loading) {
     return (
       <div className="loading-spinner">
-        <TailSpin
-          height="80"
-          width="80"
-          color="#4fa94d"
-          ariaLabel="loading"
-        />
+        <TailSpin height="80" width="80" color="#4fa94d" ariaLabel="loading" />
       </div>
     );
   }
@@ -53,33 +79,57 @@ const Payroll = () => {
   return (
     <div className="payroll">
       <TopBar onLogout={handleLogout} />
-      <h3>Payroll</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>User Name</th>
-            <th>Month</th>
-            <th>Salary</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {payrollRecords && payrollRecords.length > 0 ? (
-            payrollRecords.map((record) => (
-              <tr key={record._id}>
-                <td>{record.userId.name}</td>
-                <td>{record.month}</td>
-                <td>{record.salary}</td>
-                <td>{record.status}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4">No data available</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <Typography variant="h3" gutterBottom>
+        Payroll
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>
+                <IconButton>
+                  <AccountCircle />
+                </IconButton>
+                Name
+              </TableCell>
+              <TableCell>
+                <IconButton>
+                  <CalendarToday />
+                </IconButton>
+                Month
+              </TableCell>
+              <TableCell>
+                <IconButton>
+                  <MonetizationOn />
+                </IconButton>
+                Salary
+              </TableCell>
+              <TableCell>
+                <IconButton>
+                  <Receipt />
+                </IconButton>
+                Status
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {payrollRecords && payrollRecords.length > 0 ? (
+              payrollRecords.map((record) => (
+                <TableRow key={record._id}>
+                  <TableCell>{record.userId.name}</TableCell>
+                  <TableCell>{record.month}</TableCell>
+                  <TableCell>{record.salary}</TableCell>
+                  <TableCell>{record.status}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan="4">No data available</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 };

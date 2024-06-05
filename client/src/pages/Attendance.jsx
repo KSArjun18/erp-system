@@ -4,6 +4,9 @@ import TopBar from './TopBar';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { TailSpin } from 'react-loader-spinner';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, IconButton } from '@mui/material';
+import { AccountCircle, DateRange, AccessTime, ExitToApp, EventAvailable, EventBusy, ReportProblem } from '@mui/icons-material';
+import { attendance } from '../utils/APIRoutes';
 
 const Attendance = () => {
   const [attendanceRecords, setAttendanceRecords] = useState([]);
@@ -14,13 +17,12 @@ const Attendance = () => {
   useEffect(() => {
     const fetchAttendanceRecords = async () => {
       try {
-        // const response = await axios.get('http://localhost:3000/api/v1/attendance', {
+        // const response = await axios.get(attendance, {
         //   headers: {
         //     Authorization: `Bearer ${localStorage.getItem('token')}`
         //   }
         // });
-        // setAttendanceRecords(response.data.attendanceRecords);
-        
+
         // Dummy data for testing
         const response = {
           data: {
@@ -29,8 +31,8 @@ const Attendance = () => {
                 _id: '1',
                 userId: { name: 'John Doe' },
                 date: '2023-06-01T00:00:00Z',
-                checkIn: '2023-06-01T09:00:00Z',
-                checkOut: '2023-06-01T17:00:00Z',
+                logIn: '2023-06-01T09:00:00Z',
+                logOut: '2023-06-01T17:00:00Z',
                 leavesTaken: 2,
                 leavesRemaining: 8,
                 emergencyLeave: false,
@@ -39,8 +41,8 @@ const Attendance = () => {
                 _id: '2',
                 userId: { name: 'Jane Smith' },
                 date: '2023-06-02T00:00:00Z',
-                checkIn: '2023-06-02T08:45:00Z',
-                checkOut: '2023-06-02T17:15:00Z',
+                logIn: '2023-06-02T08:45:00Z',
+                logOut: '2023-06-02T17:15:00Z',
                 leavesTaken: 1,
                 leavesRemaining: 9,
                 emergencyLeave: true,
@@ -48,8 +50,7 @@ const Attendance = () => {
             ]
           }
         };
-        setAttendanceRecords(response.data.attendanceRecords);
-        console.log(response, "data");
+                setAttendanceRecords(response.data.attendanceRecords || []);
       } catch (error) {
         setError('Error fetching attendance records');
         console.error('Error fetching attendance records', error);
@@ -70,12 +71,7 @@ const Attendance = () => {
   if (loading) {
     return (
       <div className="loading-spinner">
-        <TailSpin
-          height="80"
-          width="80"
-          color="#4fa94d"
-          ariaLabel="loading"
-        />
+        <TailSpin height="80" width="80" color="#4fa94d" ariaLabel="loading" />
       </div>
     );
   }
@@ -87,39 +83,78 @@ const Attendance = () => {
   return (
     <div className="attendance">
       <TopBar onLogout={handleLogout} />
-      <h3>Attendance</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>User Name</th>
-            <th>Date</th>
-            <th>Check-In</th>
-            <th>Check-Out</th>
-            <th>Leaves Taken</th>
-            <th>Leaves Remaining</th>
-            <th>Emergency Leave</th>
-          </tr>
-        </thead>
-        <tbody>
-          {attendanceRecords && attendanceRecords.length > 0 ? (
-            attendanceRecords.map((record) => (
-              <tr key={record._id}>
-                <td>{record.userId.name}</td>
-                <td>{new Date(record.date).toLocaleDateString()}</td>
-                <td>{record.checkIn ? new Date(record.checkIn).toLocaleTimeString() : 'N/A'}</td>
-                <td>{record.checkOut ? new Date(record.checkOut).toLocaleTimeString() : 'N/A'}</td>
-                <td>{record.leavesTaken}</td>
-                <td>{record.leavesRemaining}</td>
-                <td>{record.emergencyLeave ? 'Yes' : 'No'}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7">No data available</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <Typography variant="h3" gutterBottom>
+        Attendance
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>
+                <IconButton>
+                  <AccountCircle />
+                </IconButton>
+                Name
+              </TableCell>
+              <TableCell>
+                <IconButton>
+                  <DateRange />
+                </IconButton>
+                Date
+              </TableCell>
+              <TableCell>
+                <IconButton>
+                  <AccessTime />
+                </IconButton>
+                Log-In
+              </TableCell>
+              <TableCell>
+                <IconButton>
+                  <ExitToApp />
+                </IconButton>
+                Log-Out
+              </TableCell>
+              <TableCell>
+                <IconButton>
+                  <EventBusy />
+                </IconButton>
+                Leaves Taken
+              </TableCell>
+              <TableCell>
+                <IconButton>
+                  <EventAvailable />
+                </IconButton>
+                Leaves Remaining
+              </TableCell>
+              <TableCell>
+                <IconButton>
+                  <ReportProblem />
+                </IconButton>
+                Emergency Leave
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {attendanceRecords.length > 0 ? (
+              attendanceRecords.map((record) => (
+                <TableRow key={record._id}>
+                  <TableCell>{record.userId?.name || 'N/A'}</TableCell>
+                  <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
+                  <TableCell>{record.logIn ? new Date(record.logIn).toLocaleTimeString() : 'N/A'}</TableCell>
+                  <TableCell>{record.logOut ? new Date(record.logOut).toLocaleTimeString() : 'N/A'}</TableCell>
+                  <TableCell>{record.leavesTaken}</TableCell>
+                  <TableCell>{record.leavesRemaining}</TableCell>
+                  <TableCell>{record.emergencyLeave ? 'Yes' : 'No'}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan="7">No data available</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 };
