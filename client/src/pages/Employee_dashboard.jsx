@@ -21,12 +21,12 @@ const EmployeeDashboard = () => {
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
-        const response = await axios.get('/api/v1/employee/me', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        setEmployee(response.data);
+        // const response = await axios.get('/api/v1/employee/me', {
+        //   headers: {
+        //     Authorization: `Bearer ${localStorage.getItem('token')}`,
+        //   },
+        // });
+        // setEmployee(response.data);
       } catch (err) {
         console.error(err);
         setError('Failed to fetch employee data');

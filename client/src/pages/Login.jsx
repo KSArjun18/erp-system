@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import Image from "../assets/image.png";
 import Logo from "../assets/logo.png";
 import { jwtDecode } from "jwt-decode";
-import { FaEye } from "react-icons/fa6";
-import { FaEyeSlash } from "react-icons/fa6";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "../styles/Login.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -12,18 +11,15 @@ import { login } from "../utils/APIRoutes";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [ token, setToken ] = useState(JSON.parse(localStorage.getItem("auth")) || "");
+  const [token, setToken] = useState(
+    JSON.parse(localStorage.getItem("auth")) || ""
+  );
+  const [loading, setLoading] = useState(false); // State to track loading
   const navigate = useNavigate();
 
-
-
   const handleLoginSubmit = async (e) => {
-    let token = localStorage.getItem("token");
-    let decoded;
-    if (token) {
-      decoded = jwtDecode(token);
-    }
     e.preventDefault();
+    setLoading(true); // Start loading
     let email = e.target.email.value;
     let password = e.target.password.value;
 
@@ -33,12 +29,8 @@ const Login = () => {
         password,
       };
       try {
-        const response = await axios.post(
-          `${login}`,
-          formData
-        );
-        
-        localStorage.setItem('auth', JSON.stringify(response.data.token));
+        const response = await axios.post(`${login}`, formData);
+        localStorage.setItem("auth", JSON.stringify(response.data.token));
         if (response && response.data && response.data.token) {
           const token = response.data.token;
           localStorage.setItem("token", token);
@@ -56,19 +48,22 @@ const Login = () => {
               navigate("/Employee_dashboard");
             }
           }
-        } 
+        }
         toast.success("Login successfull");
-        // navigate("/admin_dashboard");
       } catch (err) {
         console.log(err);
         toast.error(err.message);
+      } finally {
+        setLoading(false); // Stop loading
       }
     } else {
       toast.error("Please fill all inputs");
+      setLoading(false); // Stop loading
     }
   };
+
   useEffect(() => {
-    if(token !== "") {
+    if (token !== "") {
       const userRole = JSON.parse(localStorage.getItem("role")); // Assuming userRole is stored in localStorage
       if (userRole) {
         toast.success("You already logged in");
@@ -80,7 +75,6 @@ const Login = () => {
       }
     }
   }, []);
-  
 
   return (
     <div className="login-main">
@@ -125,16 +119,18 @@ const Login = () => {
                     Remember for 30 days
                   </label>
                 </div>
-               
               </div>
               <div className="login-center-buttons">
-                <button type="submit">Log In</button>
-               
+                <button type="submit" disabled={loading}>
+                  {loading ? ( // Display loading spinner if loading is true
+                    <div className="loading-spinner"></div>
+                  ) : (
+                    "Log In"
+                  )}
+                </button>
               </div>
             </form>
           </div>
-
-          
         </div>
       </div>
     </div>
