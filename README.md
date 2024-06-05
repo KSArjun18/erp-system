@@ -1,5 +1,7 @@
 # MERN EPR SYSTEM-Enterprise resource planning
 
+# Deployed Url:https://clinquant-crumble-ffe0b1.netlify.app/
+
 
 
 # Technologies Used
